@@ -1,116 +1,210 @@
 import * as React from 'react';
-import { Button, View, Text, StyleSheet, SectionList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, FlatList, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-function HomeScreen({ navigation }) {
-  const DATA = [
-    {
-      title: "ד",
-      data: ["דמקה"].sort()
-    },
-    {
-      title: "ר",
-      data: ["רמיקוב"].sort()
-    },
-    {
-      title: "ש",
-      data: ["שחמט", "שש-בש"].sort()
-    },
-    {
-      title: "ט",
-      data: ["טאקי"].sort()
-    }
-  ].sort((a, b) => a.title.localeCompare(b.title));
+
+
+
+function HomeScreen({ navigation, route }) {
+  const DATA = route.params
+  var realData = []
+  for (let index = 0; index < Object.keys(DATA).length; index++) {
+    const element = DATA[index];
+    realData.push(element);
+  }
+  realData.sort((a, b) => a.title.localeCompare(b.title));
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionHeader}>בחר משחק:{'\n'}</Text>
-      <SectionList
-        sections={DATA}
-        renderItem={({ item }) =>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Details', { itemId: { item } })}>
-            <View style={styles.button}>
-              <Text style={styles.buttonText}>{item}</Text>
+      <ImageBackground
+        style={styles.backgroundImage}
+        imageStyle={{ opacity: 0.5 }}
+        source={{
+          uri: 'https://i2.wp.com/www.healthfitnessrevolution.com/wp-content/uploads/2015/05/iStock-520659161.jpg?fit=1183%2C887&ssl=1'
+        }}>
+
+        <Text style={styles.sectionHeader}>בחר משחק:</Text>
+        <FlatList
+          horizontal
+          data={realData}
+          pagingEnabled={false}
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) =>
+            <View >
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Details', { game: item })}
+                style={{ flex: 1 }} >
+                <Image style={styles.image} source={{ uri: item.image }} />
+              </TouchableOpacity >
+              <Text style={styles.gameTitle}>{item.title}</Text>
+
             </View>
-          </TouchableOpacity >
-        }
-        renderSectionHeader={({ section }) => <Text style={styles.sectionHeader}>{section.title}</Text>}
-        keyExtractor={(item, index) => index}
-      />
+          }
+          keyExtractor={(item) => item.id}
+        />
+      </ImageBackground>
     </View>
   );
 }
 
 function DetailsScreen({ route, navigation }) {
-  const { itemId } = route.params;
+  const { game } = route.params;
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={styles.sectionHeader}>חוקי המשחק {itemId['item']}</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>חוקי המשחק {game['title']}</Text>
+      <ScrollView>
+        <Text style={styles.rules}>חוקים: {game['rules']}</Text>
+      </ScrollView>
+      <Text style={styles.credit}>קרדיט: {game['author']}</Text>
       <TouchableOpacity onPress={() => navigation.navigate('Rulz')}>
-        <View style={styles.button}>
-          <Text style={styles.back}>חזור לעמוד הראשי</Text>
+        <View style={styles.back}>
+          <Text >חזור לעמוד הראשי</Text>
         </View>
       </TouchableOpacity>
-    </View>
+    </View >
+
   );
 }
-const Stack = createStackNavigator();
+
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { data: [], show: false };
+  }
+  async componentDidMount() {
+    await this.getData();
+  }
+
+  async getData() {
+    await fetch('https://gist.githubusercontent.com/shaiws/4657530d33ba05ff7986ebbcfc6055cb/raw/ba656d67f368451cf3c3303dc878ac0e3ff6f341/games.json')
+      .then((response) => response.json())
+      .then((json) => { this.setState({ data: json['games'] }); })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
 
-function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Rulz">
-        <Stack.Screen name="Rulz" component={HomeScreen} options={{
-          title: 'Rulz',
-          headerStyle: {
-            backgroundColor: '#2196F3',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }} />
-        <Stack.Screen name="Details" component={DetailsScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  render() {
+    const Stack = createStackNavigator();
+
+    if (this.state.data.length > 0) {
+      return (
+        <NavigationContainer >
+          <Stack.Navigator initialRouteName="Rulz">
+            <Stack.Screen
+              name="Rulz"
+              initialParams={this.state.data}
+              component={HomeScreen}
+              options={{
+                title: 'Rulz',
+                headerStyle: {
+                  backgroundColor: '#2196F3',
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                  fontWeight: 'bold',
+                  alignSelf: 'center'
+                },
+              }} />
+            <Stack.Screen
+              name="Details"
+              component={DetailsScreen}
+              options={{
+                title: "חוקי המשחק",
+                headerStyle: {
+                  backgroundColor: '#2196F3',
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                  fontWeight: 'bold',
+                },
+              }} />
+          </Stack.Navigator>
+        </ NavigationContainer>
+      );
+    }
+
+    else {
+      return (
+        <View>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 29,
+              alignSelf: 'center',
+            }}>
+            הנתונים נטענים...
+          </Text>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 29,
+              alignSelf: 'center',
+              textDecorationLine: 'none',
+            }}>
+          </Text>
+        </View>
+      );
+    }
+  }
+
 }
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingTop: 22
+    flex: 1
   },
   sectionHeader: {
-    paddingTop: 2,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 2,
+    backgroundColor: "yellow",
     fontSize: 20,
     fontWeight: 'bold',
   },
-  container: {
-    paddingTop: 60,
-    alignItems: 'center',
+  title: {
+    fontSize: 20,
+    backgroundColor: "green",
+    fontWeight: 'bold',
+  },
+  rules: {
+    backgroundColor: "magenta",
+    fontSize: 16,
+  },
+  credit: {
+    backgroundColor: "red",
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  gameTitle: {
+    backgroundColor: "pink",
+    fontSize: 16,
   },
   button: {
     width: 260,
-    marginBottom: 2,
-    alignItems: 'center',
     backgroundColor: '#2196F3'
   },
-    
   back: {
-    textAlign: 'center',
-    padding: 20,
-    color: 'white'
+    backgroundColor: '#2196F3'
+
   },
   buttonText: {
-    textAlign: 'center',
-    padding: 20,
+    flex: 1,
     color: 'white'
+  },
+  image: {
+    marginTop: 50,
+    marginRight: 50,
+    marginLeft: 50,
+    marginEnd: 50,
+    marginStart: 50,
+    borderRadius: 50,
+    width: 300,
+    height: 400,
+    backgroundColor: "blue",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center"
   }
-})
 
-export default App;
+})
