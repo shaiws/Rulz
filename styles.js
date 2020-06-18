@@ -3,59 +3,64 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  sectionHeader: {
-    backgroundColor: "yellow",
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
   title: {
     fontSize: 20,
-    backgroundColor: "green",
+    backgroundColor: "lightgreen",
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+  subtitlehelp: {
+    textAlign: 'right',
+    flex: 1,
+    padding: 10,
+    color: '#2a2f43',
+    fontWeight: 'bold'
+  },
+  subtitle: {
+    flex: 1,
+    padding: 10,
+    color: 'black',
     fontWeight: 'bold',
   },
   rules: {
-    backgroundColor: "magenta",
-    fontSize: 16,
+    padding: 10,
+    paddingTop: 0
   },
   credit: {
-    backgroundColor: "red",
+    backgroundColor: 'lightblue',
     fontSize: 12,
     fontWeight: 'bold',
   },
   gameTitle: {
-    flex: 10,
-    backgroundColor: "pink",
-    fontSize: 16,
+    fontSize: 20,
   },
   gameCard: {
 
   },
   button: {
-    width: 260,
+    width: 100,
     backgroundColor: '#2196F3'
   },
   back: {
+    //flex: 1,
+    //height: 40,
+    padding: 10,
+    textAlign: 'center',
     backgroundColor: '#2196F3'
-
   },
   buttonText: {
     flex: 1,
     color: 'white'
   },
   image: {
-    // marginTop: 50,
-    // marginRight: 50,
-    // marginLeft: 50,
-    // marginEnd: 50,
-    // marginStart: 50,
-    // borderRadius: 50,
-    width: 30,
-    height: 40,
-    // backgroundColor: "blue",
+    borderRadius: 50,
+    width: 70,
+    height: 70,
+    backgroundColor: "blue",
+    alignSelf: 'center'
   },
   backgroundImage: {
     flex: 1,
-    //resizeMode: "cover",
     justifyContent: "center"
   }
 })
